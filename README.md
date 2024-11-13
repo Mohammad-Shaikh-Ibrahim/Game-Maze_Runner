@@ -1,4 +1,4 @@
-## Maze Runner Game
+# Maze Runner Game
 
 # Overview
 
