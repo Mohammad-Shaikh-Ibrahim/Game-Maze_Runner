@@ -1,98 +1,124 @@
 import tkinter as tk
 from tkinter import messagebox
 import random
+import time
 
 # Constants
-CELL_SIZE = 40
-ROWS, COLS = 15, 15
-TIME_LIMIT = 60  # Time limit in seconds
+ROWS = 15
+COLS = 15
+TRAP_COUNT = 5
+TIMER_LIMIT = 60  # Time in seconds
+LEVELS = 3  # Number of difficulty levels
 
-# Initialize player position
-player_pos = [1, 1]  # Starting position
+# Initialize the maze and player position
+maze = [[" " for _ in range(COLS)] for _ in range(ROWS)]
+player_pos = [1, 1]
+exit_pos = [ROWS - 2, COLS - 2]
 
-# Create main window
+# Create the Tkinter window
 root = tk.Tk()
-root.title("Maze Runner")
-root.geometry(f"{COLS * CELL_SIZE + 20}x{ROWS * CELL_SIZE + 120}")
-root.config(bg="#f0f0f0")  # Light background color
+root.title("Maze Runner Game")
 
-# Create the canvas for the maze
-canvas = tk.Canvas(root, width=COLS * CELL_SIZE, height=ROWS * CELL_SIZE, bg="lightgray", bd=0)
-canvas.pack(pady=20)
+# Create a canvas to draw the maze
+canvas = tk.Canvas(root, width=600, height=600)
+canvas.pack()
 
-# Timer display at the top with improved font
-timer_label = tk.Label(root, text=f"Time Left: {TIME_LIMIT}", font=("Verdana", 16, "bold"), bg="#f0f0f0", fg="darkgreen")
-timer_label.pack()
+# Timer variables
+timer = TIMER_LIMIT
+time_remaining = tk.Label(root, text=f"Time: {timer}s", font=("Arial", 14))
+time_remaining.pack()
 
-# Instructions at the bottom with updated font and color
-instructions_label = tk.Label(root, text="Use arrow keys to move: ↑ ↓ ← →", font=("Verdana", 12), bg="#f0f0f0", fg="darkblue")
-instructions_label.pack(pady=10)
+# Instructions Label
+instructions = tk.Label(root, text="Use arrow keys to move. Reach the exit before time runs out!", font=("Arial", 10))
+instructions.pack()
 
-# Maze generation function to guarantee solvability
-def generate_maze(rows, cols):
-    # Create an empty grid of walls
-    maze = [["#" for _ in range(cols)] for _ in range(rows)]
-    
-    # Start and exit positions
-    maze[1][1] = "P"  # Player starts here
-    maze[rows - 2][cols - 2] = "E"  # Exit is here
+# Player Score
+score = 0
+score_label = tk.Label(root, text=f"Score: {score}", font=("Arial", 14))
+score_label.pack()
 
-    # Use Depth-First Search (DFS) to create a path
-    def dfs(x, y):
+# Maze generation using depth-first search
+def generate_maze(level=1):
+    global maze, player_pos, exit_pos, TRAP_COUNT
+    maze = [["#" for _ in range(COLS)] for _ in range(ROWS)]
+
+    # Modify trap count and maze size based on level
+    TRAP_COUNT = 5 * level
+    player_pos = [1, 1]
+    exit_pos = [ROWS - 2, COLS - 2]
+
+    # Create a simple path from (1,1) to the exit (ROWS-2, COLS-2)
+    def carve_path(x, y):
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-        random.shuffle(directions)  # Shuffle directions for randomness
+        random.shuffle(directions)
         for dx, dy in directions:
-            nx, ny = x + dx * 2, y + dy * 2
-            if 1 <= nx < rows - 1 and 1 <= ny < cols - 1 and maze[nx][ny] == "#":
-                maze[nx][ny] = " "  # Make the new cell a path
-                maze[x + dx][y + dy] = " "  # Open the wall between cells
-                dfs(nx, ny)  # Recursively visit the next cell
+            nx, ny = x + dx, y + dy
+            if 1 <= nx < ROWS - 1 and 1 <= ny < COLS - 1 and maze[nx][ny] == "#":
+                maze[nx][ny] = " "
+                carve_path(nx, ny)
 
-    # Start DFS from the player's position (1, 1)
-    dfs(1, 1)
+    # Carve the path from the start (1,1)
+    maze[1][1] = " "
+    carve_path(1, 1)
+    
+    # Place the exit
+    maze[ROWS - 2][COLS - 2] = "E"
+    
+    # Add traps randomly
+    traps_placed = 0
+    while traps_placed < TRAP_COUNT:
+        trap_x = random.randint(1, ROWS - 2)
+        trap_y = random.randint(1, COLS - 2)
+        if maze[trap_x][trap_y] == " ":
+            maze[trap_x][trap_y] = "T"
+            traps_placed += 1
 
-    # Add random traps, but don't place them on the exit or player
-    for _ in range(10):
-        x, y = random.randint(1, rows - 2), random.randint(1, cols - 2)
-        if maze[x][y] == " " and (x, y) != (rows - 2, cols - 2) and (x, y) != (1, 1):
-            maze[x][y] = "T"
-
-    return maze
-
-maze = generate_maze(ROWS, COLS)
-
-# Draw the maze with creative visual elements
+# Function to draw the maze on the canvas
 def draw_maze():
     canvas.delete("all")
-    for row in range(ROWS):
-        for col in range(COLS):
-            x1, y1 = col * CELL_SIZE, row * CELL_SIZE
-            x2, y2 = x1 + CELL_SIZE, y1 + CELL_SIZE
-            if maze[row][col] == "#":  # Wall
-                canvas.create_rectangle(x1, y1, x2, y2, fill="darkgray", outline="black", width=2)
-            elif maze[row][col] == " ":  # Path
-                canvas.create_rectangle(x1, y1, x2, y2, fill="white", outline="black", width=1)
-            elif maze[row][col] == "P":  # Player
-                canvas.create_rectangle(x1, y1, x2, y2, fill="blue", outline="black", width=2)
-            elif maze[row][col] == "E":  # Exit
-                canvas.create_rectangle(x1, y1, x2, y2, fill="green", outline="black", width=2)
-            elif maze[row][col] == "T":  # Trap
-                canvas.create_rectangle(x1, y1, x2, y2, fill="red", outline="black", width=2)
+    for i in range(ROWS):
+        for j in range(COLS):
+            x0 = j * 40
+            y0 = i * 40
+            x1 = x0 + 40
+            y1 = y0 + 40
+            if maze[i][j] == "#":
+                canvas.create_rectangle(x0, y0, x1, y1, fill="black")
+            elif maze[i][j] == " ":
+                canvas.create_rectangle(x0, y0, x1, y1, fill="white")
+            elif maze[i][j] == "T":
+                canvas.create_rectangle(x0, y0, x1, y1, fill="red")
+            elif maze[i][j] == "E":
+                canvas.create_rectangle(x0, y0, x1, y1, fill="green")
+            elif maze[i][j] == "P":
+                canvas.create_rectangle(x0, y0, x1, y1, fill="yellow")
 
-# Move player within the maze
+    # Draw player
+    player_x, player_y = player_pos
+    px0 = player_y * 40
+    py0 = player_x * 40
+    px1 = px0 + 40
+    py1 = py0 + 40
+    canvas.create_rectangle(px0, py0, px1, py1, fill="blue")
+
+# Function to move the player
 def move_player(dx, dy):
-    global player_pos
+    global player_pos, maze, timer, score
     x, y = player_pos
     new_x, new_y = x + dx, y + dy
-
+    
     # Check for boundaries and wall collisions
     if 0 <= new_x < ROWS and 0 <= new_y < COLS and maze[new_x][new_y] != "#":
         if maze[new_x][new_y] == "E":
+            score += 100  # Add score for reaching the exit
+            score_label.config(text=f"Score: {score}")
             messagebox.showinfo("Maze Runner", "Congratulations! You've reached the exit!", icon="info")
-            root.quit()
+            level_up()  # Proceed to the next level
         elif maze[new_x][new_y] == "T":
+            score -= 10  # Deduct points for hitting a trap
+            score_label.config(text=f"Score: {score}")
             messagebox.showwarning("Maze Runner", "You hit a trap! Game Over.", icon="warning")
-            root.quit()
+            level_up()  # Proceed to the next level
         else:
             # Update maze and player position
             maze[x][y] = " "
@@ -100,74 +126,50 @@ def move_player(dx, dy):
             maze[new_x][new_y] = "P"
             draw_maze()
 
-# Handle key presses for movement
-def on_key_press(event):
-    key = event.keysym
-    if key == "Up":
-        move_player(-1, 0)
-    elif key == "Down":
-        move_player(1, 0)
-    elif key == "Left":
-        move_player(0, -1)
-    elif key == "Right":
-        move_player(0, 1)
+# Level up function to proceed to the next level
+def level_up():
+    global timer, score
+    time.sleep(1)
+    if timer > 0:
+        level = (score // 100) + 1  # Increase difficulty based on score
+        generate_maze(level)
+        draw_maze()
+        countdown()  # Restart timer for next level
 
-# Timer function
-def update_timer():
-    time_left = int(timer_label.cget("text").split(": ")[1])
-    if time_left > 0:
-        timer_label.config(text=f"Time Left: {time_left - 1}")
-        root.after(1000, update_timer)
+# Functions to move the player using arrow keys
+def move_up(event):
+    move_player(-1, 0)
+
+def move_down(event):
+    move_player(1, 0)
+
+def move_left(event):
+    move_player(0, -1)
+
+def move_right(event):
+    move_player(0, 1)
+
+# Bind the arrow keys to player movement
+root.bind("<Up>", move_up)
+root.bind("<Down>", move_down)
+root.bind("<Left>", move_left)
+root.bind("<Right>", move_right)
+
+# Timer function to count down
+def countdown():
+    global timer
+    if timer > 0:
+        timer -= 1
+        time_remaining.config(text=f"Time: {timer}s")
+        root.after(1000, countdown)
     else:
-        messagebox.showinfo("Maze Runner", "Time's up! Game Over.", icon="error")
+        messagebox.showwarning("Maze Runner", "Time's up! Game Over.", icon="warning")
         root.quit()
 
-# Start game function to initialize timer and draw maze
-def start_game():
-    # Clear instructions and start button
-    instructions_label.pack_forget()
+# Start the game and timer
+generate_maze()
+draw_maze()
+countdown()
 
-    # Start the timer and the game
-    draw_maze()
-    update_timer()
-
-# Create a stylish start button with hover, pressed, and gradient effects
-def on_hover(event):
-    start_button.config(bg="#45a049", fg="white")
-
-def on_leave(event):
-    start_button.config(bg="#4CAF50", fg="white")
-
-def on_click(event):
-    start_button.config(bg="#388e3c", fg="white")
-
-def on_release(event):
-    start_button.config(bg="#45a049", fg="white")
-
-start_button = tk.Button(
-    root,
-    text="Start Game",
-    font=("Verdana", 14, "bold"),
-    width=20,
-    height=2,
-    relief="flat",
-    bg="#4CAF50",
-    fg="white",
-    command=start_game
-)
-start_button.pack(pady=30)
-
-# Adding more button interactions
-start_button.bind("<Enter>", on_hover)
-start_button.bind("<Leave>", on_leave)
-start_button.bind("<Button-1>", on_click)
-start_button.bind("<ButtonRelease-1>", on_release)
-
-# Bind arrow keys for movement
-root.bind("<Up>", on_key_press)
-root.bind("<Down>", on_key_press)
-root.bind("<Left>", on_key_press)
-root.bind("<Right>", on_key_press)
-
-# Start the main event loop
+# Start the game
 root.mainloop()
