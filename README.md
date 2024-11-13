@@ -1,96 +1,87 @@
 # Maze Runner Game
 
+
 # Overview
 
-Maze Runner is an interactive Python-based game where the player navigates through a maze to reach the exit. The maze is generated dynamically, ensuring each game session is unique. The player uses arrow keys to move, and they must avoid traps while trying to reach the exit before time runs out.
+The Maze Runner Game is a Python-based game where you control a player navigating through a maze. The objective is to reach the exit before time runs out, while avoiding traps along the way. As you progress, the game becomes more challenging with more traps and a larger maze. The game features multiple levels, scoring, and a countdown timer.
 
-# The game features:
+# Features:
 
-A randomly generated maze with walls, paths, traps, and an exit.
+Multiple Levels: The game has multiple levels that get progressively harder. Each level increases the number of traps and the complexity of the maze.
 
-A countdown timer, which adds pressure to reach the exit.
+Timer: You must reach the exit before time runs out. The timer counts down from 60 seconds for each level.
 
-A modern and interactive GUI built with Tkinter, featuring smooth button transitions and hover effects.
+Scoring System: The player earns points by reaching the exit and loses points by hitting traps. The score affects the level of difficulty.
 
-A player that moves through the maze, avoiding traps, and aiming to reach the exit.
+Traps: Traps are placed randomly throughout the maze, and if the player hits one, the game ends.
 
-# Features
-Dynamic Maze Generation: The maze is generated randomly every time the game starts, making each game session different.
+Exit: The player wins by reaching the exit (marked by a green square). After reaching the exit, the player moves on to the next level.
 
-Traps: Random traps are placed in the maze. If the player hits a trap, the game ends.
+# Requirements:
 
-Exit: The player must find and reach the exit point in the maze.
+Python 3.x (Ensure Python 3 is installed on your machine)
 
-Timer: The game has a countdown timer, and the player must complete the maze before the time runs out.
+Tkinter (Used for the GUI and game rendering)
 
-Interactive UI: The game has a modern, user-friendly interface with visually appealing buttons and responsive design.
+# How to Play:
 
-# Game Rules
-Objective: Move the player through the maze using the arrow keys to find the exit before time runs out.
+Start the Game: Run the Python script to begin playing.
 
-Controls: Use the arrow keys (Up, Down, Left, Right) to move the player through the maze.
+Movement: Use the arrow keys (↑, ↓, ←, →) to move the player through the maze.
 
-Traps: If the player hits a trap (marked as "T"), the game ends immediately.
+Avoid Traps: Be careful not to hit the traps (red squares). If you do, you lose points and the game ends.
 
-Exit: The goal is to reach the exit (marked as "E") before the timer runs out.
+Reach the Exit: To win the game, reach the exit (green square) before time runs out. Each time you reach the exit, you advance to a more difficult level.
 
-Timer: The player has 60 seconds to reach the exit. If the timer runs out, the game ends.
+Scoring: Each exit you reach adds 100 points, and hitting a trap deducts 10 points from your score.
 
-# Installation
-To play the Maze Runner Game, ensure you have Python installed (preferably version 3.6 or later). You will also need the Tkinter library, which is used for the GUI.
+# How to Run:
 
-# Steps:
-Clone the repository or download the game script file (maze_runner_with_buttons.py).
+Ensure you have Python 3.x installed on your computer.
 
-Open a terminal or command prompt.
+## Install Tkinter (if it’s not installed by default): pip install tk
 
-Navigate to the directory where the file is saved.
+Save the Python script as maze_runner_game.py.
 
-Run the game using the following command:
+## Run the script using Python: python maze_runner_game.py
 
-bash
+Use the arrow keys to navigate the maze and avoid traps.
 
-Copy code
+# Game Controls:
 
-python maze_runner_with_buttons.py
+Up Arrow: Move Up
 
-# How to Play
+Down Arrow: Move Down
 
-Start the Game: Click the Start Game button.
+Left Arrow: Move Left
 
-Navigate: Use the arrow keys to move the player.
+Right Arrow: Move Right
 
-Avoid Traps: Watch out for the traps; they will end the game if you step on them.
+# Game Logic:
 
-Find the Exit: Locate and reach the exit before the timer runs out.
+Levels: The game consists of multiple levels. Each level increases the number of traps and the complexity of the maze.
 
-Win or Lose: If you reach the exit, you win! If you hit a trap or time runs out, you lose.
+Timer: You have a limited amount of time (60 seconds) to reach the exit in each level. If time runs out, the game ends.
 
-# Game UI Features
-Start Button: A stylish green button that begins the game when clicked. The button features a modern design with hover and press effects.
+Traps: Traps are randomly placed in the maze. If the player hits a trap, the game ends, and they lose points.
 
-Timer: A countdown timer is displayed at the top of the screen, showing the remaining time to reach the exit.
+Exit: To proceed to the next level, the player must reach the exit. The game automatically generates a new maze for each level.
 
-Instructions: Instructions are displayed below the timer, guiding the player on how to move using the arrow keys.
+Score: The score increases by 100 points each time the player reaches the exit. If the player hits a trap, 10 points are deducted.
 
-Maze Canvas: The maze is displayed on a canvas, with walls, paths, the player, the exit, and traps clearly marked with different colors.
+# Example Output:
+Level 1: 60 seconds, 5 traps.
+Level 2: 50 seconds, 10 traps.
+Level 3: 40 seconds, 15 traps.
+As the levels increase, the maze gets more difficult, and the player must navigate through more traps to reach the exit.
 
-Game Feedback: Upon winning or losing the game, a message will pop up to inform the player of their status.
+# Future Enhancements:
+Power-ups: Add power-ups like extra time or trap detection.
 
-# Code Structure
+Enemies: Add moving obstacles or enemies that chase the player.
 
-Main Window: The Tkinter window that contains all GUI elements, including the maze, buttons, timer, and instructions.
+## Leaderboards: Keep track of high scores and allow the player to compete for the best score.
 
-Maze Generation: The maze is generated dynamically using a Depth-First Search (DFS) algorithm, ensuring there’s always a solvable path from the start to the exit.
+# License:
 
-Player Movement: The player’s position is updated on the canvas as they move using the arrow keys.
-
-Game Logic: Includes functions for moving the player, checking for traps or the exit, updating the timer, and displaying game over/win messages.
-
-# Contributing
-
-If you have suggestions or improvements, feel free to fork the repository and submit a pull request. All contributions are welcome!
-
-# License
-
-This project is open source and available under the MIT License.
+This project is open-source and available under the MIT License.
